@@ -7,6 +7,11 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
+aiogram = "^3.10.0"
+aiogram-dialog = "^2.1.0"
+dishka = "^1.2.0"
+structlog = "^24.4.0"
+nats-py = "^2.8.0"
 
 
 [build-system]
