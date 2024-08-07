@@ -2,7 +2,7 @@
 
 Please include a summary of the change.
 
-## Type of change
+## Tasks
 
 Specify the tasks that you have solved.
 
