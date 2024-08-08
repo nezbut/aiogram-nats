@@ -1,5 +1,5 @@
 from aiogram_nats.core.entities.message import MessageSendScheduled
-from aiogram_nats.core.interfaces.interfaces.message_sender import MessageSender
+from aiogram_nats.core.interfaces.interfaces.message import MessageSender
 from aiogram_nats.core.interfaces.interfaces.scheduler import Scheduler
 
 
