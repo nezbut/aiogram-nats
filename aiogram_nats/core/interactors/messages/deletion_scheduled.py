@@ -1,5 +1,5 @@
 from aiogram_nats.core.entities.message import MessageDeletionScheduled
-from aiogram_nats.core.interfaces.interfaces.message_remover import MessageRemover
+from aiogram_nats.core.interfaces.interfaces.message import MessageRemover
 from aiogram_nats.core.interfaces.interfaces.scheduler import Scheduler
 
 
