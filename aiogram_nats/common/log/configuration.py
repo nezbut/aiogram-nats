@@ -73,3 +73,25 @@ class LoggerReg:
     level: Level = Level.DEBUG
     propagate: bool = False
     write_file: bool = False
+
+    def __eq__(self, value: object) -> bool:
+        """
+        Checks if the current LoggerReg object is equal to the given value.
+
+        Args :
+            value (object): The object to compare with the current LoggerReg object.
+
+        Returns :
+            bool: True if the current LoggerReg object is equal to the given value, False otherwise.
+
+        Note :
+            If the given value is not a LoggerReg object, it checks if the name of the current LoggerReg object is equal to the given value.
+        """
+        if not isinstance(value, LoggerReg):
+            return self.name.value == value
+        return (
+            self.name == value.name
+            and self.level == value.level
+            and self.propagate == value.propagate
+            and self.write_file == value.write_file
+        )
