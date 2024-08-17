@@ -90,8 +90,8 @@ class LoggerReg:
         if not isinstance(value, LoggerReg):
             return self.name.value == value
         return (
-            self.name == value.name
-            and self.level == value.level
-            and self.propagate == value.propagate
-            and self.write_file == value.write_file
+                self.name == value.name
+                and self.level == value.level
+                and self.propagate == value.propagate
+                and self.write_file == value.write_file
         )
