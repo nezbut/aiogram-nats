@@ -11,21 +11,25 @@ class Message:
     Represents a message in the system.
 
     Attributes :
-        id (str): The unique identifier of the message.
         user (User): The user who sent the message.
 
     """
 
-    id: str
     user: User
 
 
 @dataclass
 class MessageDeletionScheduled(Message, ScheduledEntity):
 
-    """Represents a scheduled deletion of a message in the system."""
+    """
+    Represents a scheduled deletion of a message in the system.
 
-    pass
+    Attributes :
+        id (int): The unique identifier of the message.
+
+    """
+
+    id: int
 
 
 @dataclass
