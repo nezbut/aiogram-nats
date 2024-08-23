@@ -1,9 +1,11 @@
 from dataclasses import dataclass
+from typing import Any
 
 from adaptix import NameStyle, Retort, name_mapping
 
 from aiogram_nats.common.settings.dynaconf_config import dynaconf_settings
 from aiogram_nats.common.settings.models.logs import LoggingSettings
+from aiogram_nats.common.settings.models.rdb import DBSettings
 from aiogram_nats.common.settings.models.telegram import TelegramBot
 
 _settings_retort = Retort(
@@ -14,6 +16,10 @@ _settings_retort = Retort(
         ),
         name_mapping(
             TelegramBot,
+            name_style=NameStyle.UPPER_SNAKE,
+        ),
+        name_mapping(
+            DBSettings,
             name_style=NameStyle.UPPER_SNAKE,
         ),
     ],
@@ -27,6 +33,7 @@ class Settings:
 
     bot: TelegramBot
     logging: LoggingSettings
+    rdb: DBSettings
 
     @classmethod
     def from_dynaconf(cls) -> "Settings":
@@ -38,9 +45,15 @@ class Settings:
         Returns :
             Settings: A Settings instance
         """
-        bot = _settings_retort.load(dynaconf_settings.bot, TelegramBot)
+        bot = _settings_retort.load(cls._get_settings("bot"), TelegramBot)
+        rdb = _settings_retort.load(cls._get_settings("rdb"), DBSettings)
         logs = _settings_retort.load(
-            dynaconf_settings.logging, LoggingSettings,
+            cls._get_settings("logging"), LoggingSettings,
         )
 
-        return cls(bot=bot, logging=logs)
+        return cls(bot=bot, logging=logs, rdb=rdb)
+
+    @staticmethod
+    def _get_settings(key: str) -> dict[str, Any]:
+        key_settings: dict[str, Any] = dynaconf_settings.get(key) or {}
+        return key_settings
