@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Any
 
 from aiogram_nats.common.log.configuration import Formatter, Level, LoggerName
 
@@ -42,3 +43,11 @@ class LoggingSettings:
     delete_log_file: bool = True
     logs_dir: str = "logs"
     file_write_format: Formatter = Formatter.JSON
+
+
+def get_logging_settings() -> list[Any]:
+    """Returns a list of logging settings classes."""
+    return [LoggingSettings]
+
+
+__all__ = ["get_logging_settings"]
