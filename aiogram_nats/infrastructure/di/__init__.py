@@ -6,6 +6,7 @@ from aiogram_nats.infrastructure.di.settings import get_settings_providers
 
 
 def get_main_providers() -> list[Provider]:
+    """Returns a list of providers for the main infrastructure components."""
     return [
         *get_settings_providers(),
         *get_database_providers(),
