@@ -3,8 +3,9 @@ from collections.abc import AsyncIterable
 from dishka import Provider, Scope, provide
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
-from aiogram_nats.common.settings.models.rdb import DBSettings
+from aiogram_nats.common.settings.models.db import RDBSettings
 from aiogram_nats.infrastructure.database.rdb.factory import create_engine, create_session_maker
+from aiogram_nats.infrastructure.database.rdb.holder import HolderDAO
 from aiogram_nats.infrastructure.database.rdb.tm import TransactionManager
 
 
@@ -15,9 +16,9 @@ class DbProvider(Provider):
     scope = Scope.APP
 
     @provide
-    async def get_engine(self, db_settings: DBSettings) -> AsyncIterable[AsyncEngine]:
+    async def get_engine(self, rdb_settings: RDBSettings) -> AsyncIterable[AsyncEngine]:
         """Provides an asynchronous database engine based on the provided configuration."""
-        engine = create_engine(db_settings)
+        engine = create_engine(rdb_settings)
         yield engine
         await engine.dispose(close=True)
 
@@ -42,3 +43,19 @@ class TMProvider(Provider):
         """Provides a Transaction Manager instance for the given asynchronous database session."""
         async with TransactionManager(session) as tm:
             yield tm
+
+
+class DAOProvider(Provider):
+
+    """Provider for DAO objects."""
+
+    holder = provide(HolderDAO, scope=Scope.REQUEST)
+
+
+def get_database_providers() -> list[Provider]:
+    """Returns a list of database providers for di."""
+    return [
+        DbProvider(),
+        TMProvider(),
+        DAOProvider(),
+    ]
