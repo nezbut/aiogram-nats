@@ -4,6 +4,7 @@ from typing import Any, Protocol, TypeVar
 from aiogram_nats.core.entities.scheduled import ScheduledEntity
 
 SupportScheduled = TypeVar("SupportScheduled", bound=ScheduledEntity)
+Task = Callable[[SupportScheduled], Awaitable[Any]]
 
 
 class Scheduler(Protocol):
@@ -16,7 +17,7 @@ class Scheduler(Protocol):
 
     """
 
-    async def schedule(self, entity: SupportScheduled, task: Callable[[SupportScheduled], Awaitable[Any]]) -> str:
+    async def schedule(self, entity: SupportScheduled, task: Task) -> str:
         """
         Schedules a task to be executed at a later time.
 
