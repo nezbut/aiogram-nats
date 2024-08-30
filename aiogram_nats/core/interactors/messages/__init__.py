@@ -1,5 +1,4 @@
-from .deletion_scheduled import ScheduleMessageDeletion
-from .send_scheduled import ScheduleMessageSend
+from .scheduled import ScheduleMessageDeletion, ScheduleMessageSend
 
 __all__ = [
     "ScheduleMessageSend",

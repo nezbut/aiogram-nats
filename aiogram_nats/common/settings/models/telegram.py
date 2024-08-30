@@ -1,6 +1,8 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional
+from typing import Any, Optional
+
+from nats.js.api import KeyValueConfig
 
 from aiogram_nats.common.settings.models.security import SecretStr
 
@@ -17,6 +19,15 @@ class BotApiType(Enum):
 
     LOCAL = "local"
     OFFICIAL = "official"
+
+
+@dataclass
+class FSMStorageSettings:
+
+    """A class representing the settings for the FSM storage."""
+
+    kv_states: KeyValueConfig = field(default_factory=lambda: KeyValueConfig("fsm_states_tgbot"))
+    kv_data: KeyValueConfig = field(default_factory=lambda: KeyValueConfig("fsm_data_tgbot"))
 
 
 @dataclass
@@ -53,4 +64,18 @@ class TelegramBot:
 
     token: SecretStr
     bot_api: BotApiSettings
+    fsm_storage: FSMStorageSettings
     webhook: Optional[WebHookSettings] = None
+
+
+def get_telegram_settings() -> list[Any]:
+    """Returns a list of telegram bot settings classes."""
+    return [
+        TelegramBot,
+        WebHookSettings,
+        BotApiSettings,
+        FSMStorageSettings,
+    ]
+
+
+__all__ = ["get_telegram_settings"]

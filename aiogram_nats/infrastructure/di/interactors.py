@@ -1,6 +1,6 @@
 from dishka import Provider, Scope, provide
 
-from aiogram_nats.core.interactors import mailing, messages
+from aiogram_nats.core.interactors import mailing
 
 
 class InteractorsProvider(Provider):
@@ -11,8 +11,8 @@ class InteractorsProvider(Provider):
 
     create_mailing = provide(mailing.CreateMailing)
     remove_mailing = provide(mailing.RemoveMailing)
-    schedule_mailing = provide(mailing.ScheduleMailing)
-    start_mailing = provide(mailing.StartMailing)
 
-    schedule_message_deletion = provide(messages.ScheduleMessageDeletion)
-    schedule_message_send = provide(messages.ScheduleMessageSend)
+
+def get_interactors_providers() -> list[Provider]:
+    """Returns a list of interactors providers for di."""
+    return [InteractorsProvider()]
