@@ -51,6 +51,6 @@ jobs:
         run: poetry run ruff check .
       - name: mypy
         run: |
-          export MYPYPATH=$CURRENT_DIR/aiogram_nats/stubs
+          export MYPYPATH={$CURRENT_DIR}/aiogram_nats/stubs
           echo $MYPYPATH
           poetry run mypy .
