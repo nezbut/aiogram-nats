@@ -5,15 +5,19 @@ on:
     branches:
       - main
     paths:
-      - 'aiogram_nats/**'
-      - 'tests/**'
+      - "aiogram_nats/**"
+      - "tests/**"
   push:
     branches:
       - main
-      - 'feature-**'
+      - "feature-**"
     paths:
-      - 'aiogram_nats/**'
-      - 'tests/**'
+      - "aiogram_nats/**"
+      - "tests/**"
+
+env:
+  CURRENT_DIR: $(pwd)
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -45,4 +49,6 @@ jobs:
       - name: ruff
         run: poetry run ruff check .
       - name: mypy
-        run: poetry run mypy .
+        run: |
+          MYPYPATH=${CURRENT_DIR}/aiogram_nats/stubs
+          poetry run mypy .
