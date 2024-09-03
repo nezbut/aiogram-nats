@@ -52,4 +52,5 @@ jobs:
       - name: mypy
         run: |
           export MYPYPATH=$CURRENT_DIR/aiogram_nats/stubs
+          echo $MYPYPATH
           poetry run mypy .
