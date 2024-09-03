@@ -19,6 +19,7 @@ taskiq-redis = "^1.0.0"
 sqlalchemy = "^2.0.32"
 alembic = "^1.13.2"
 adaptix = "3.0.0b7"
+fluentogram = "^1.1.7"
 
 [tool.poetry.group.test]
 optional = true
