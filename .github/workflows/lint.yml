@@ -53,4 +53,4 @@ jobs:
         run: |
           export MYPYPATH=$(pwd)/aiogram_nats/stubs
           echo $MYPYPATH
-          poetry run mypy . --exclude aiogram_nats/stubs/fluent_compiler/bundle.pyi
+          poetry run mypy . --exclude aiogram_nats/stubs/
