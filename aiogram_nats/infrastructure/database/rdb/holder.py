@@ -7,9 +7,6 @@ class HolderDAO:
     """
     A container class that holds all DAO objects and provides a convenient way to commit transactions.
 
-    DAO :
-        user (UserDAO): The user DAO instance.
-
     Methods :
         commit: Commits the current transaction.
     """
