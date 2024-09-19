@@ -20,6 +20,10 @@ sqlalchemy = "^2.0.32"
 alembic = "^1.13.2"
 adaptix = "3.0.0b7"
 fluentogram = "^1.1.7"
+asyncpg = "^0.29.0"
+uvicorn = "^0.30.6"
+fastapi = {extras = ["standard"], version = "^0.115.0"}
+asgi-monitor = "^0.5.0"
 
 [tool.poetry.group.test]
 optional = true
