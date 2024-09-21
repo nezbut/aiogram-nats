@@ -1,7 +1,9 @@
 import asyncio
 import logging
 from functools import partial
+from typing import Optional
 
+import uvicorn
 from aiogram import Bot, Dispatcher
 from dishka import AsyncContainer
 from fastapi import FastAPI
@@ -46,9 +48,8 @@ async def shutdown_api(container: AsyncContainer) -> None:
     await bot.session.close()
 
 
-async def start_polling() -> None:
+async def start_polling(settings: Settings) -> None:
     """Start polling for telegram bot"""
-    settings = Settings.from_dynaconf()
     container = create_container(settings)
     bot: Bot = await container.get(Bot)
     dp_not_setup: Dispatcher = await container.get(Dispatcher)
@@ -65,9 +66,9 @@ async def start_polling() -> None:
         await dp.stop_polling()
 
 
-def start_webhook() -> FastAPI:
+def start_webhook(settings: Optional[Settings] = None) -> FastAPI:
     """Start webhook for telegram bot"""
-    settings = Settings.from_dynaconf()
+    settings = settings or Settings.from_dynaconf()
     if not settings.bot.webhook:
         raise OSError("Webhook settings are not provided")
     container = create_container(settings)
@@ -90,4 +91,13 @@ def start_webhook() -> FastAPI:
 
 
 if __name__ == "__main__":
-    asyncio.run(start_polling())
+    settings = Settings.from_dynaconf()
+    if settings.bot.webhook:
+        app = start_webhook(settings)
+        uvicorn.run(
+            app=app,
+            host="localhost",
+            port=8080,
+        )
+    else:
+        asyncio.run(start_polling(settings))
