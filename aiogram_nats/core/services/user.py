@@ -1,4 +1,3 @@
-from collections.abc import Sequence
 from typing import Optional
 
 from aiogram_nats.core.entities.user import User
@@ -19,7 +18,7 @@ async def upsert_user(user: User, upserter: UserUpserter) -> User:
     return await upserter.upsert_user(user)
 
 
-async def get_users(getter: UserGetter) -> Sequence[User]:
+async def get_users(getter: UserGetter, ids: Optional[list[int]] = None) -> list[User]:
     """
     Retrieves a sequence of users using the provided getter.
 
@@ -29,7 +28,7 @@ async def get_users(getter: UserGetter) -> Sequence[User]:
     Returns :
         Sequence[User]: A sequence of retrieved users.
     """
-    return await getter.get_all()
+    return await getter.get_all(ids=ids)
 
 
 async def get_user(user_id: int, getter: UserGetter) -> Optional[User]:

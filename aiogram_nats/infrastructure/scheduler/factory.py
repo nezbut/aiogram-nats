@@ -1,9 +1,11 @@
+from typing import cast
+
 from taskiq import AsyncBroker, AsyncResultBackend, ScheduleSource
-from taskiq_nats import PullBasedJetStreamBroker, PushBasedJetStreamBroker  # type: ignore[import-untyped]
 from taskiq_redis import RedisAsyncResultBackend, RedisScheduleSource
 
 from aiogram_nats.common.settings import Settings
 from aiogram_nats.common.settings.models.broker import BrokerSettings, TasksBrokerType
+from aiogram_nats.infrastructure.scheduler.override import PullBasedJetStreamBrokerDI, PushBasedJetStreamBrokerDI
 
 
 def create_tasks_broker(settings: BrokerSettings) -> AsyncBroker:
@@ -15,15 +17,16 @@ def create_tasks_broker(settings: BrokerSettings) -> AsyncBroker:
     :return: (AsyncBroker): The created Tasks Broker.
     """
     nats_settings = settings.nats
-    broker_type = PullBasedJetStreamBroker if nats_settings.tasks.tasks_broker_type == TasksBrokerType.PULL else PushBasedJetStreamBroker
-    broker: AsyncBroker = broker_type(
+    broker_type = PullBasedJetStreamBrokerDI if nats_settings.tasks.tasks_broker_type == TasksBrokerType.PULL else PushBasedJetStreamBrokerDI
+    broker: AsyncBroker = cast(AsyncBroker, broker_type(
         [server.make_uri().value for server in nats_settings.servers],
         stream_config=nats_settings.tasks.tasks_stream_config,
         consumer_config=nats_settings.tasks.tasks_consumer_config,
         pull_consume_batch=nats_settings.tasks.pull_consume_batch,
         pull_consume_timeout=nats_settings.tasks.pull_consume_timeout,
         queue=nats_settings.tasks.queue,
-    )
+        subject=nats_settings.tasks.subject,
+    ))
     return broker
 
 

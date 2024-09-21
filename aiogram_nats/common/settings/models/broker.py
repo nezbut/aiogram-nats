@@ -21,11 +21,16 @@ class TasksNatsSettings:
     """A dataclass representing the settings for the tasks NATS broker."""
 
     tasks_broker_type: TasksBrokerType = TasksBrokerType.PULL
-    tasks_stream_config: StreamConfig = field(default_factory=lambda: StreamConfig("tasks_stream", subjects=["tasks"]))
-    tasks_consumer_config: ConsumerConfig = field(default_factory=lambda: ConsumerConfig(durable_name="tasks_consumer"))
+    tasks_stream_config: StreamConfig = field(
+        default_factory=lambda: StreamConfig("tasks_stream"),
+    )
+    tasks_consumer_config: ConsumerConfig = field(
+        default_factory=lambda: ConsumerConfig(durable_name="tasks_consumer"),
+    )
     pull_consume_batch: int = 1
     pull_consume_timeout: Optional[float] = None
     queue: Optional[str] = None
+    subject: str = "tasks"
 
 
 @dataclass
@@ -59,8 +64,10 @@ class NatsSettings:
 
     """A class representing NATS Settings."""
 
-    tasks: TasksNatsSettings = field(default_factory=lambda: TasksNatsSettings())
-    servers: list[NatsServerSettings] = field(default_factory=lambda: [NatsServerSettings()])
+    tasks: TasksNatsSettings = field(
+        default_factory=lambda: TasksNatsSettings())
+    servers: list[NatsServerSettings] = field(
+        default_factory=lambda: [NatsServerSettings()])
 
 
 @dataclass
