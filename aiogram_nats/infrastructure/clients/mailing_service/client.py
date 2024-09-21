@@ -1,6 +1,5 @@
 import json
-from types import TracebackType
-from typing import Any, Optional
+from typing import Any
 
 from nats.aio.client import Client
 from nats.aio.msg import Msg
@@ -17,36 +16,15 @@ class MailingServiceClient:
     def __init__(
             self,
             nats_client: Client,
+            messages_psub: JetStreamContext.PullSubscription,
             mailing_service_settings: MailingServiceSettings,
             js: JetStreamContext,
     ) -> None:
-        self._settings = mailing_service_settings
-        self._subject = f"{mailing_service_settings.main_subject}.{mailing_service_settings.service}"
-        self._js = js
         self._nc = nats_client
-        self._psub_coro = self._js.pull_subscribe(
-            f"{self._subject}.messages",
-            durable="messages_manager",
-            stream=self._settings.stream_name,
-        )
-        self._psub: JetStreamContext.PullSubscription
-
-    async def startup(self) -> None:
-        """Asynchronous method that represents the startup process of the client."""
-        self._psub = await self._psub_coro
-
-    async def shutdown(self) -> None:
-        """Asynchronously shuts down the MailingServiceClient instance."""
-        pass
-
-    async def __aenter__(self) -> "MailingServiceClient":
-        """Asynchronous context manager entry point."""
-        await self.startup()
-        return self
-
-    async def __aexit__(self, exc_type: Optional[type[BaseException]], exc_val: Optional[BaseException], exc_tb: Optional[TracebackType]) -> None:
-        """Asynchronous context manager exit point."""
-        await self.shutdown()
+        self._psub = messages_psub
+        self._js = js
+        self._subject = f"{mailing_service_settings.main_subject}.{mailing_service_settings.service}"
+        self._settings = mailing_service_settings
 
     async def get_mailing_messages(self, mailing_id: str, batch: int = 1, timeout: int = 5) -> list[Msg]:
         """

@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from typing import Optional, Protocol
 
 from aiogram_nats.core.entities.user import User
@@ -36,6 +37,11 @@ class UserGetter(Protocol):
         """
         raise NotImplementedError
 
-    async def get_all(self, ids: Optional[list[int]] = None) -> list[User]:
-        """Retrieves a sequence of users."""
+    async def get_all(self) -> Sequence[User]:
+        """
+        Retrieves a sequence of all users.
+
+        Returns :
+            Sequence[User]: A sequence of retrieved User objects.
+        """
         raise NotImplementedError

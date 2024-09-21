@@ -1,5 +1,5 @@
 from aiogram_nats.core.entities.message import MessageDeletionScheduled, MessageSendScheduled
-from aiogram_nats.core.interfaces.interfaces.scheduler import Scheduler
+from aiogram_nats.core.interfaces.interfaces.scheduler import Scheduler, Task
 
 
 class ScheduleMessageSend:
@@ -9,10 +9,13 @@ class ScheduleMessageSend:
 
     Args :
         scheduler (Scheduler): The scheduler instance to use for scheduling.
+        message_sender (Task): The message sender instance to use for sending messages.
+
     """
 
-    def __init__(self, scheduler: Scheduler) -> None:
+    def __init__(self, scheduler: Scheduler, message_sender: Task) -> None:
         self.scheduler = scheduler
+        self.message_sender = message_sender
 
     async def __call__(self, message: MessageSendScheduled) -> str:
         """
@@ -24,7 +27,7 @@ class ScheduleMessageSend:
         Returns :
             None
         """
-        return await self.scheduler.schedule_send_message(message)
+        return await self.scheduler.schedule(message, self.message_sender)
 
 
 class ScheduleMessageDeletion:
@@ -35,10 +38,13 @@ class ScheduleMessageDeletion:
 
     Attributes :
         scheduler (Scheduler): The scheduler object used to schedule tasks.
+        message_remover (Task): The message remover object used to remove messages.
+
     """
 
-    def __init__(self, scheduler: Scheduler) -> None:
+    def __init__(self, scheduler: Scheduler, remover: Task) -> None:
         self.scheduler = scheduler
+        self.message_remover = remover
 
     async def __call__(self, message: MessageDeletionScheduled) -> str:
         """
@@ -49,5 +55,8 @@ class ScheduleMessageDeletion:
 
         Returns :
             str: The scheduling ID of the deletion task.
+
+        Raises :
+            None.
         """
-        return await self.scheduler.schedule_delete_message(message)
+        return await self.scheduler.schedule(message, self.message_remover)

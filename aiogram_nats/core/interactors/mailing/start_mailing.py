@@ -1,15 +1,12 @@
-from collections.abc import Awaitable, Callable
-from typing import Any
-
 from aiogram_nats.core.entities.mailing import Mailing, ScheduledMailing
-from aiogram_nats.core.interfaces.interfaces.scheduler import Scheduler
+from aiogram_nats.core.interfaces.interfaces.scheduler import Scheduler, Task
 
 
 class StartMailing:
 
     """Class is responsible for starting a mailing."""
 
-    def __init__(self, mailing_starter: Callable[[Mailing], Awaitable[Any]]) -> None:
+    def __init__(self, mailing_starter: Task) -> None:
         self.mailing_starter = mailing_starter
 
     async def __call__(self, mailing: Mailing) -> None:
@@ -29,7 +26,8 @@ class ScheduleMailing:
 
     """Class is responsible for scheduling a mailing."""
 
-    def __init__(self, scheduler: Scheduler) -> None:
+    def __init__(self, mailing_starter: Task, scheduler: Scheduler) -> None:
+        self.mailing_starter = mailing_starter
         self.scheduler = scheduler
 
     async def __call__(self, mailing: ScheduledMailing) -> str:
@@ -43,4 +41,4 @@ class ScheduleMailing:
             str: The scheduling ID of the mailing.
 
         """
-        return await self.scheduler.schedule_mailing(mailing)
+        return await self.scheduler.schedule(mailing, self.mailing_starter)
