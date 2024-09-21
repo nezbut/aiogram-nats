@@ -4,28 +4,24 @@ from aiogram_nats.core.entities.mailing import Mailing, MailingMessage
 from aiogram_nats.core.entities.user import User
 
 
-class MailingCreator(Protocol):
+class MailingManager(Protocol):
 
-    """Protocol for creating a mailing."""
+    """Class is responsible for managing mailings."""
 
-    async def create(self, message: MailingMessage, users: list[User]) -> Mailing:
+    async def create(self, message: MailingMessage, creator: User, users: list[User]) -> Mailing:
         """
         Asynchronously creates a new mailing.
 
         Args :
             message (MailingMessage): The message of the mailing.
             users (list[User]): The list of users associated with the mailing.
+            creator (User): The creator of the mailing.
 
         Returns :
             Mailing: The newly created mailing.
 
         """
         raise NotImplementedError
-
-
-class MailingSaver(Protocol):
-
-    """Protocol for saving a mailing."""
 
     async def save(self, mailing: Mailing) -> None:
         """
@@ -36,26 +32,6 @@ class MailingSaver(Protocol):
 
         """
         raise NotImplementedError
-
-
-class MailingStarter(Protocol):
-
-    """Protocol for starting a mailing."""
-
-    async def start(self, mailing: Mailing) -> None:
-        """
-        Asynchronously starts a mailing.
-
-        Args :
-            mailing (Mailing): The mailing to be started.
-
-        """
-        raise NotImplementedError
-
-
-class MailingRemover(Protocol):
-
-    """Protocol for removing a mailing."""
 
     async def remove(self, mailing: Mailing) -> None:
         """
