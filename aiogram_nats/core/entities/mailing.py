@@ -1,29 +1,8 @@
 from dataclasses import dataclass
-from enum import Enum
-from typing import Optional
 from uuid import UUID
 
 from aiogram_nats.core.entities.scheduled import ScheduledEntity
 from aiogram_nats.core.entities.user import User
-
-
-class MediaContentType(Enum):
-
-    """An enumeration of media content types."""
-
-    PHOTO = "photo"
-    VIDEO = "video"
-    AUDIO = "audio"
-    DOCUMENT = "document"
-
-
-@dataclass
-class MailingMedia:
-
-    """Represents a media object in a mailing."""
-
-    address: str
-    media_type: MediaContentType
 
 
 @dataclass
@@ -35,11 +14,10 @@ class MailingMessage:
     Attributes :
         text (str): The text of the message.
         media_address (str): The address of the media.
-        media_type (MediaContentType): The type of the media.
     """
 
     text: str
-    media: Optional[MailingMedia] = None
+    media_address: str
 
 
 @dataclass
@@ -55,7 +33,6 @@ class Mailing:
     """
 
     id: UUID
-    creator: User
     users: list[User]
     message: MailingMessage
 

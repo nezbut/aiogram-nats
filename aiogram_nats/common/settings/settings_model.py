@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from functools import lru_cache
 from typing import Any, TypeVar
 
 from adaptix import Retort
@@ -32,7 +31,6 @@ class Settings:
     mailing_service: MailingServiceSettings
 
     @classmethod
-    @lru_cache
     def from_dynaconf(cls) -> "Settings":
         """
         A class method that creates a Settings instance from dynaconf settings.

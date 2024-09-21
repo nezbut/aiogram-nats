@@ -1,9 +1,4 @@
-from typing import Annotated
-
-from sqlalchemy import BigInteger
-from sqlalchemy.orm import DeclarativeBase, mapped_column
-
-id_int = Annotated[int, mapped_column(BigInteger, primary_key=True)]
+from sqlalchemy.orm import DeclarativeBase
 
 
 class Base(DeclarativeBase):

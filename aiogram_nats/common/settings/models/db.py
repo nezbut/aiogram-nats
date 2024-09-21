@@ -101,7 +101,7 @@ class RDBSettings:
     dialect: DataBaseDialect = DataBaseDialect.POSTGRESQL
     driver: str = "asyncpg"
     username: str = "postgres"
-    password: SecretStr = field(default_factory=lambda: SecretStr(value="postgres"))
+    password: SecretStr = field(default_factory=lambda: SecretStr(value=""))
     host: str = "localhost"
     port: int = 5432
     db_name: str = "aiogram_nats"

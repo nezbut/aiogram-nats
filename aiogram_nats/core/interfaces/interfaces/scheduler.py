@@ -1,45 +1,34 @@
-from typing import Protocol
+from collections.abc import Awaitable, Callable
+from typing import Any, Protocol, TypeVar
 
-from aiogram_nats.core.entities.mailing import ScheduledMailing
-from aiogram_nats.core.entities.message import MessageDeletionScheduled, MessageSendScheduled
+from aiogram_nats.core.entities.scheduled import ScheduledEntity
+
+SupportScheduled = TypeVar("SupportScheduled", bound=ScheduledEntity)
+Task = Callable[[SupportScheduled], Awaitable[Any]]
 
 
 class Scheduler(Protocol):
 
-    """A protocol for scheduling tasks."""
+    """
 
-    async def schedule_delete_message(self, message: MessageDeletionScheduled) -> str:
+    A protocol for scheduling tasks.
+
+    This class defines the interface for scheduling tasks. It has one method, which takes an `entity` and a `task` as arguments and returns a scheduling ID.
+
+    """
+
+    async def schedule(self, entity: SupportScheduled, task: Task) -> str:
         """
-        Asynchronously schedules the deletion of a message.
+        Schedules a task to be executed at a later time.
 
-        :param message: The message to be deleted.
-        :type message: MessageDeletionScheduled
+        Args :
+            entity (SupportScheduled): The entity to be
+             scheduled
+            task (Callable[[SupportScheduled, Any], Awaitable[Any]]): The task to be executed. It should take a `ScheduledEntity` object and any other arguments
+            and return an `Awaitable` object.
 
-        :return: The scheduling ID of the deletion task.
-        :rtype: str
-        """
-        raise NotImplementedError
+        Returns :
+            str: The scheduling ID.
 
-    async def schedule_send_message(self, message: MessageSendScheduled) -> str:
-        """
-        Asynchronously schedules a task to send a message.
-
-        :param message: The message to be sent.
-        :type message: MessageSendScheduled
-
-        :return: The scheduling ID of the send task.
-        :rtype: str
-        """
-        raise NotImplementedError
-
-    async def schedule_mailing(self, mailing: ScheduledMailing) -> str:
-        """
-        Asynchronously schedules a mailing to be started at a later time.
-
-        :param mailing: The mailing to be scheduled.
-        :type mailing: ScheduledMailing
-
-        :return: The scheduling ID of the mailing.
-        :rtype: str
         """
         raise NotImplementedError

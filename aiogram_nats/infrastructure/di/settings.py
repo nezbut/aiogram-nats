@@ -1,4 +1,4 @@
-from dishka import Provider, Scope, from_context, provide
+from dishka import Provider, Scope, provide
 
 from aiogram_nats.common.settings import Settings
 from aiogram_nats.common.settings.models import broker, db, logs
@@ -12,7 +12,10 @@ class SettingsProvider(Provider):
 
     scope = Scope.APP
 
-    settings = from_context(Settings)
+    @provide
+    def get_settings(self) -> Settings:
+        """Provide the settings by loading them from dynaconf."""
+        return Settings.from_dynaconf()
 
 
 class BotSettingsProvider(Provider):
@@ -35,16 +38,6 @@ class BotSettingsProvider(Provider):
     def get_fsm_storage_settings(self, bot_settings: tg.TelegramBot) -> tg.FSMStorageSettings:
         """Get the FSM storage settings from the given bot settings."""
         return bot_settings.fsm_storage
-
-    @provide
-    def get_nats_fsm_storage_settings(self, fsm_settings: tg.FSMStorageSettings) -> tg.NatsFSMStorageSettings:
-        """Get the Nats FSM storage settings from the given bot settings."""
-        return fsm_settings.nats
-
-    @provide
-    def get_redis_fsm_storage_settings(self, fsm_settings: tg.FSMStorageSettings) -> tg.RedisFSMStorageSettings:
-        """Get the Redis FSM storage settings from the given bot settings."""
-        return fsm_settings.redis
 
 
 class LoggingSettingsProvider(Provider):
@@ -112,7 +105,7 @@ class MailingServiceSettingsProvider(Provider):
 
     """Provider for Mailing Service Settings."""
 
-    @provide(scope=Scope.APP)
+    @provide
     def get_mailing_service_settings(self, settings: Settings) -> ms.MailingServiceSettings:
         """Get the mailing service settings from the given settings."""
         return settings.mailing_service

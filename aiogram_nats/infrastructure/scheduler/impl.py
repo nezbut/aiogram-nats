@@ -1,15 +1,9 @@
-from typing import Any, TypeVar
+from typing import Any
 
 import taskiq.scheduler.created_schedule
-from taskiq import AsyncTaskiqDecoratedTask, ScheduleSource
+from taskiq import AsyncBroker, ScheduleSource
 
-from aiogram_nats.core.entities.mailing import ScheduledMailing
-from aiogram_nats.core.entities.message import MessageDeletionScheduled, MessageSendScheduled
-from aiogram_nats.core.entities.scheduled import ScheduledEntity
-from aiogram_nats.core.interfaces.interfaces.scheduler import Scheduler
-from aiogram_nats.tgbot import tasks
-
-ScheduledSupport = TypeVar("ScheduledSupport", bound=ScheduledEntity)
+from aiogram_nats.core.interfaces.interfaces.scheduler import Scheduler, SupportScheduled, Task
 
 
 class SchedulerImpl(Scheduler):
@@ -21,49 +15,34 @@ class SchedulerImpl(Scheduler):
     allows you to schedule tasks to be executed at a later time.
     """
 
-    def __init__(self, source: ScheduleSource) -> None:
+    def __init__(self, broker: AsyncBroker, source: ScheduleSource) -> None:
+        self.broker = broker
         self.source = source
+        self._labels: dict[str, Any] = {}
 
-    async def _schedule(self, task: AsyncTaskiqDecoratedTask[[ScheduledSupport], Any], entity: ScheduledSupport) -> str:
-        scheduled: taskiq.scheduler.created_schedule.CreatedSchedule = await task.schedule_by_time(
+    async def schedule(self, entity: SupportScheduled, task: Task) -> str:
+        """
+        Schedule a task to be executed at a later time.
+
+        :param entity: (SupportScheduled): The entity to be scheduled.
+        :param task: (Task): The task to be executed. It should take a `SupportScheduled` object and return an `Awaitable` object.
+
+        :return: (str): The scheduling ID.
+        """
+        reg_task = self.broker.register_task(task)
+        scheduled: taskiq.scheduler.created_schedule.CreatedSchedule = await reg_task.schedule_by_time(
             self.source,
             entity.scheduled_time,
             entity,
         )
         return scheduled.schedule_id
 
-    async def schedule_send_message(self, message: MessageSendScheduled) -> str:
+    def add_labels(self, labels: dict[str, Any]) -> None:
         """
-        Asynchronously schedules a task to send a message.
+        Update the labels of the SchedulerImpl instance with the provided dictionary.
 
-        :param message: The message to be sent.
-        :type message: MessageSendScheduled
+        :param labels: (dict[str, Any]): A dictionary containing the labels to be added.
 
-        :return: The scheduling ID of the send task.
-        :rtype: str
+        :return: (None)
         """
-        return await self._schedule(tasks.send_message, message)
-
-    async def schedule_delete_message(self, message: MessageDeletionScheduled) -> str:
-        """
-        Asynchronously schedules the deletion of a message.
-
-        :param message: The message to be deleted.
-        :type message: MessageDeletionScheduled
-
-        :return: The scheduling ID of the deletion task.
-        :rtype: str
-        """
-        return await self._schedule(tasks.remove_message, message)
-
-    async def schedule_mailing(self, mailing: ScheduledMailing) -> str:
-        """
-        Asynchronously schedules a mailing to be started at a later time.
-
-        :param mailing: The mailing to be scheduled.
-        :type mailing: ScheduledMailing
-
-        :return: The scheduling ID of the mailing.
-        :rtype: str
-        """
-        return await self._schedule(tasks.start_mailing, mailing)
+        self._labels.update(labels)

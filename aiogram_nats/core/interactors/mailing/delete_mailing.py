@@ -1,13 +1,13 @@
 from aiogram_nats.core.entities.mailing import Mailing
-from aiogram_nats.core.interfaces.interfaces.mailing import MailingManager
+from aiogram_nats.core.interfaces.interfaces.mailing import MailingRemover
 
 
 class RemoveMailing:
 
     """Class is responsible for removing a mailing."""
 
-    def __init__(self, mailing_manager: MailingManager) -> None:
-        self.mailing_manager = mailing_manager
+    def __init__(self, mailing_remover: MailingRemover) -> None:
+        self.mailing_remover = mailing_remover
 
     async def __call__(self, mailing: Mailing) -> None:
         """
@@ -19,4 +19,4 @@ class RemoveMailing:
         Returns :
             None: This function does not return anything.
         """
-        await self.mailing_manager.remove(mailing)
+        await self.mailing_remover.remove(mailing)
