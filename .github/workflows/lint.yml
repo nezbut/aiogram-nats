@@ -3,14 +3,13 @@ name: AiogramNatsLint
 on:
   pull_request:
     branches:
-      - main
+      - "*"
     paths:
       - "aiogram_nats/**"
       - "tests/**"
   push:
     branches:
-      - main
-      - "feature-**"
+      - "*"
     paths:
       - "aiogram_nats/**"
       - "tests/**"
