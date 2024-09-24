@@ -1,21 +1,19 @@
 import logging
 from collections.abc import Awaitable, Callable
-from typing import TYPE_CHECKING, Any, Optional
+from typing import Any, Optional
 
 from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject, User
+from fluentogram import TranslatorHub
 
 from aiogram_nats.tgbot.utils.data import MiddlewareData
-
-if TYPE_CHECKING:
-    from fluentogram import TranslatorHub
 
 logger = logging.getLogger(__name__)
 
 
-class TranslatorRunnerMiddleware(BaseMiddleware):
+class I18NMiddleware(BaseMiddleware):
 
-    """Translator runner middleware."""
+    """I18N middleware."""
 
     async def __call__(  # type: ignore[override]
         self,
@@ -23,13 +21,16 @@ class TranslatorRunnerMiddleware(BaseMiddleware):
         event: TelegramObject,
         data: MiddlewareData,
     ) -> Any:
-        """Get Translator."""
+        """I18N middleware."""
         user: Optional[User] = data.get("event_from_user")
 
         if user is None or not user.language_code:
             return await handler(event, data)
 
-        hub: TranslatorHub = data["translator_hub"]
-        data["i18n"] = hub.get_translator_by_locale(locale=user.language_code)
+        container = data["dishka_container"]
+        hub: TranslatorHub = await container.get(TranslatorHub)
+        translator = hub.get_translator_by_locale(locale=user.language_code)
+        data["i18n"] = translator
+        data["i18n_getter"] = translator.get
 
         return await handler(event, data)

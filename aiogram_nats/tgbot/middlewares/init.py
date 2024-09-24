@@ -3,8 +3,8 @@ from typing import Any
 
 from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject
+from aiogram_dialog.api.protocols import BgManagerFactory
 
-# from aiogram_dialog import BgManagerFactory  # noqa: ERA001
 from aiogram_nats.common.settings import Settings
 from aiogram_nats.core.interfaces.interfaces.scheduler import Scheduler
 from aiogram_nats.infrastructure.clients.mailing_service import MailingServiceClient
@@ -18,10 +18,10 @@ class InitMiddleware(BaseMiddleware):
 
     def __init__(
         self,
-        # bg_manager_factory: BgManagerFactory,
+        bg_manager_factory: BgManagerFactory,
         settings: Settings,
     ) -> None:
-        # self.bg_manager_factory = bg_manager_factory  # noqa: ERA001
+        self.bg_manager_factory = bg_manager_factory
         self.settings = settings
 
     async def __call__(  # type: ignore[override]
@@ -33,7 +33,7 @@ class InitMiddleware(BaseMiddleware):
         """Init middleware."""
         container = data["dishka_container"]
 
-        # data["bg_manager_factory"] = self.bg_manager_factory  # noqa: ERA001
+        data["bg_manager_factory"] = self.bg_manager_factory
         data["settings"] = self.settings
 
         data["broker_settings"] = self.settings.broker
