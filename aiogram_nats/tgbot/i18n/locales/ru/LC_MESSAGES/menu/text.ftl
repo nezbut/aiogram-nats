@@ -1,0 +1,1 @@
+hello-user = Привет {$username}!
