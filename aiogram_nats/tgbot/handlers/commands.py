@@ -10,4 +10,5 @@ commands_router = Router()
 
 @commands_router.message(CommandStart())
 async def start_command(_: Message, dialog_manager: DialogManager) -> None:
+    """Handle start command and start dialog."""
     return await dialog_manager.start(MainMenu.menu, mode=StartMode.RESET_STACK)

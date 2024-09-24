@@ -1,4 +1,5 @@
-from typing import Any, Optional, Protocol, TypedDict
+from collections.abc import Callable
+from typing import Any, Concatenate, Optional, TypedDict
 
 from aiogram import Bot, Router, types
 from aiogram.dispatcher.event.handler import HandlerObject
@@ -17,11 +18,7 @@ from aiogram_nats.core.interfaces.interfaces.scheduler import Scheduler
 from aiogram_nats.infrastructure.clients.mailing_service import MailingServiceClient
 from aiogram_nats.infrastructure.database.rdb.holder import HolderDAO
 
-
-class I18nGetter(Protocol):
-
-    def __call__(self, key: str, data: dict[str, Any]) -> str:
-        raise NotImplementedError
+I18NGetter = Callable[Concatenate[...], str]
 
 
 class AiogramMiddlewareData(TypedDict, total=False):
@@ -87,7 +84,7 @@ class MiddlewareData(AiogramMiddlewareData, DialogMiddlewareData, SettingsMiddle
     mailing_service: MailingServiceClient
     translator_hub: TranslatorHub
     i18n: TranslatorRunner
-    i18n_getter: I18nGetter
+    i18n_getter: I18NGetter
 
     start_mailing: mailing.StartMailing
     schedule_mailing: mailing.ScheduleMailing
