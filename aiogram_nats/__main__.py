@@ -12,22 +12,10 @@ from aiogram_nats.api.factory import create_app
 from aiogram_nats.common.settings import Settings
 from aiogram_nats.common.settings.models.telegram import WebHookSettings
 from aiogram_nats.infrastructure.scheduler.taskiq_constants import taskiq_broker
-from aiogram_nats.tgbot import handlers, middlewares
 from aiogram_nats.tgbot.di.factory import create_container
+from aiogram_nats.tgbot.setup import setup_dispatcher
 from aiogram_nats.tgbot.webhook.fastapi.handlers import SimpleRequestHandler
 from aiogram_nats.tgbot.webhook.fastapi.setup import setup_application
-
-
-def setup_all(dp: Dispatcher, settings: Settings) -> Dispatcher:
-    """Setup all in dispatcher."""
-    # bg_manager_factory = setup_dialogs(dp, bot_config, message_manager)  # noqa: ERA001
-    handlers.setup(dp)
-    middlewares.setup(
-        dp,
-        settings,
-        # bg_manager_factory=bg_manager_factory,  # noqa: ERA001
-    )
-    return dp
 
 
 async def startup_api(container: AsyncContainer, settings: WebHookSettings) -> None:
@@ -53,7 +41,7 @@ async def start_polling(settings: Settings) -> None:
     container = create_container(settings)
     bot: Bot = await container.get(Bot)
     dp_not_setup: Dispatcher = await container.get(Dispatcher)
-    dp = setup_all(dp_not_setup, settings)
+    dp = setup_dispatcher(dp_not_setup, settings)
 
     logging.basicConfig(level=logging.INFO)
     try:
