@@ -8,6 +8,7 @@ from aiogram_nats.infrastructure.di.interactors import get_interactors_providers
 from aiogram_nats.infrastructure.di.settings import get_settings_providers
 from aiogram_nats.infrastructure.di.taskiq_provider import get_taskiq_providers
 from aiogram_nats.tgbot.di.bot import get_bot_providers
+from aiogram_nats.tgbot.di.i18n import get_i18n_bot_providers
 
 
 def get_providers() -> list[Provider]:
@@ -20,6 +21,7 @@ def get_providers() -> list[Provider]:
         *get_bot_providers(),
         *get_clients_providers(),
         *get_broker_providers(),
+        *get_i18n_bot_providers(),
     ]
 
 
