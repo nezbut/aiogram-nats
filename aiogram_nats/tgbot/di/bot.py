@@ -1,5 +1,5 @@
 from aiogram import Bot, Dispatcher
-from aiogram.fsm.storage.base import BaseStorage
+from aiogram.fsm.storage.base import BaseStorage, DefaultKeyBuilder
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.storage.redis import RedisStorage
 from dishka import AsyncContainer, Provider, Scope, provide
@@ -50,12 +50,17 @@ class DpProvider(Provider):
             case FSMStorageType.REDIS:
                 db = fsm_settings.redis.db
                 redis_uri = redis_settings.make_uri(db=db).value
-                return RedisStorage.from_url(redis_uri, connection_kwargs=fsm_settings.redis.connection_kwargs)
+                return RedisStorage.from_url(
+                    redis_uri,
+                    connection_kwargs=fsm_settings.redis.connection_kwargs,
+                    key_builder=DefaultKeyBuilder(with_destiny=True),
+                )
             case FSMStorageType.NATS:
                 storage = NatsStorage(
                     nc=nc,
                     js=js,
                     nats_storage_settings=fsm_settings.nats,
+                    key_builder=DefaultKeyBuilder(with_destiny=True),
                 )
                 if fsm_settings.nats.create_nats_kv_buckets:
                     await storage.create_storage()
