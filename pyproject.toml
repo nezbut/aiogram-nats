@@ -12,7 +12,7 @@ aiogram-dialog = "^2.1.0"
 dishka = "^1.2.0"
 structlog = "^24.4.0"
 nats-py = "^2.8.0"
-dynaconf = "^3.2.6"
+dynaconf = {extras = ["vault"], version = "^3.2.6"}
 taskiq = "^0.11.6"
 taskiq-nats = "^0.4.0"
 taskiq-redis = "^1.0.0"
