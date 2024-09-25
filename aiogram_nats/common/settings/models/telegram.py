@@ -107,6 +107,13 @@ class BotApiSettings:
         return self.type == BotApiType.LOCAL
 
     def create_server(self) -> TelegramAPIServer:
+        """
+        Creates a Telegram API server based on the provided settings.
+
+        :return: TelegramAPIServer instance
+        :rtype: TelegramAPIServer
+        :raises RuntimeError: If the bot API is not local
+        """
         if not self.is_local():
             raise RuntimeError(
                 "Create a server only when you use a local Bot API server: https://core.telegram.org/bots/api#using-a-local-bot-api-server.",
@@ -129,6 +136,12 @@ class WebHookSettings:
 
     @property
     def path(self) -> str:
+        """
+        A property that returns the webhook path, ensuring it starts with a forward slash (/).
+
+        :return: The webhook path with a leading forward slash if necessary.
+        :rtype: str
+        """
         return f"/{self.webhook_path}" if not self.webhook_path.startswith("/") else self.webhook_path
 
 
@@ -144,12 +157,24 @@ class TelegramBot:
     webhook: Optional[WebHookSettings] = None
 
     def create_session(self) -> Optional[BaseSession]:
+        """
+        Creates a session for the bot if the bot API is local.
+
+        :return: An instance of AiohttpSession if the bot API is local, None otherwise.
+        :rtype: Optional[BaseSession]
+        """
         if self.bot_api.is_local():
             server = self.bot_api.create_server()
             return AiohttpSession(api=server)
         return None
 
     def create_bot_instance(self) -> Bot:
+        """
+        Creates a Telegram bot instance based on the provided settings.
+
+        :return: A Telegram bot instance.
+        :rtype: Bot
+        """
         session = self.create_session()
         return Bot(
             token=self.token.value,
@@ -166,18 +191,3 @@ class TelegramBot:
                 show_caption_above_media=self.properties.show_caption_above_media,
             ),
         )
-
-
-def get_telegram_settings() -> list[Any]:
-    """Returns a list of telegram bot settings classes."""
-    return [
-        TelegramBot,
-        WebHookSettings,
-        BotApiSettings,
-        FSMStorageSettings,
-        NatsFSMStorageSettings,
-        RedisFSMStorageSettings,
-    ]
-
-
-__all__ = ["get_telegram_settings"]

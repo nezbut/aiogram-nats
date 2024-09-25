@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Optional
+from typing import Optional
 
 from nats.js.api import ConsumerConfig, StreamConfig
 
@@ -76,16 +76,3 @@ class BrokerSettings:
     """A class representing broker settings."""
 
     nats: NatsSettings
-
-
-def get_broker_settings() -> list[Any]:
-    """Returns a list of broker settings classes."""
-    return [
-        BrokerSettings,
-        NatsSettings,
-        NatsServerSettings,
-        TasksNatsSettings,
-    ]
-
-
-__all__ = ["get_broker_settings"]

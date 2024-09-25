@@ -6,7 +6,6 @@ from adaptix import Retort
 from adaptix.load_error import AggregateLoadError, NoRequiredFieldsLoadError
 
 from aiogram_nats.common.settings.dynaconf_config import dynaconf_settings
-from aiogram_nats.common.settings.models import get_retort_providers
 from aiogram_nats.common.settings.models.broker import BrokerSettings
 from aiogram_nats.common.settings.models.db import DBSettings
 from aiogram_nats.common.settings.models.logs import LoggingSettings
@@ -15,9 +14,7 @@ from aiogram_nats.common.settings.models.telegram import TelegramBot
 
 _DataClass = TypeVar("_DataClass")
 
-_settings_retort = Retort(
-    recipe=[*get_retort_providers()],
-)
+_settings_retort = Retort()
 
 
 @dataclass

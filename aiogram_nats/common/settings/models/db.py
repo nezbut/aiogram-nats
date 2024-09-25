@@ -35,8 +35,10 @@ class TasksRedisSettings:
 
     """A dataclass representing the Redis settings for tasks."""
 
-    schedule_source: TasksScheduleSource = field(default_factory=TasksScheduleSource)
-    result_backend: TasksResultBackend = field(default_factory=TasksResultBackend)
+    schedule_source: TasksScheduleSource = field(
+        default_factory=TasksScheduleSource)
+    result_backend: TasksResultBackend = field(
+        default_factory=TasksResultBackend)
 
 
 @dataclass
@@ -101,7 +103,8 @@ class RDBSettings:
     dialect: DataBaseDialect = DataBaseDialect.POSTGRESQL
     driver: str = "asyncpg"
     username: str = "postgres"
-    password: SecretStr = field(default_factory=lambda: SecretStr(value="postgres"))
+    password: SecretStr = field(
+        default_factory=lambda: SecretStr(value="postgres"))
     host: str = "localhost"
     port: int = 5432
     db_name: str = "aiogram_nats"
@@ -145,18 +148,3 @@ class DBSettings:
 
     rdb: RDBSettings
     redis: RedisSettings
-
-
-def get_db_settings() -> list[Any]:
-    """Returns a list of database settings."""
-    return [
-        DBSettings,
-        RDBSettings,
-        RedisSettings,
-        TasksRedisSettings,
-        TasksResultBackend,
-        TasksScheduleSource,
-    ]
-
-
-__all__ = ["get_db_settings"]
