@@ -1,4 +1,3 @@
-import logging
 from collections.abc import Awaitable, Callable
 from typing import Any, Optional
 
@@ -7,8 +6,6 @@ from aiogram.types import TelegramObject, User
 from fluentogram import TranslatorHub
 
 from aiogram_nats.tgbot.utils.data import MiddlewareData
-
-logger = logging.getLogger(__name__)
 
 
 class I18NMiddleware(BaseMiddleware):
