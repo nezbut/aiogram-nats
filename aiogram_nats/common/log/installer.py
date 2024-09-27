@@ -2,12 +2,12 @@ import logging.config
 from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 import structlog
 from structlog.typing import Processor
 
-from aiogram_nats.common.log.configuration import Formatter, Handler, LoggerReg
+from aiogram_nats.common.log.configuration import Formatter, Handler, LoggerName, LoggerReg
 from aiogram_nats.common.log.processors.detailed import logger_detailed
 
 
@@ -203,3 +203,7 @@ class LoggersInstaller:
             new_name = self._log_file.parent / \
                 f"{self._log_file.name[:-(len(_LogFileState.CURRENT.value) + 4)]}{_LogFileState.OLD.value}.log"
             self._log_file.rename(new_name)
+
+    def get_logger(self, name: LoggerName, **constant_data: Any) -> structlog.stdlib.BoundLogger:
+        """Returns a structlog BoundLogger instance for the specified logger name."""
+        return structlog.stdlib.get_logger(name.value, **constant_data)
