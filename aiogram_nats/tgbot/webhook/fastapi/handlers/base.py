@@ -7,6 +7,7 @@ from aiogram.methods import TelegramMethod
 from aiogram.methods.base import TelegramType
 from dishka.integrations.fastapi import FromDishka, inject
 from fastapi import APIRouter, FastAPI, Request, Response
+from structlog.stdlib import BoundLogger
 
 
 class BaseRequestHandler(ABC):
@@ -15,11 +16,13 @@ class BaseRequestHandler(ABC):
 
     def __init__(
         self,
+        logger: BoundLogger,
         handle_in_background: Optional[bool] = None,
         **data: Any,
     ) -> None:
         self.handle_in_background = False if handle_in_background is None else handle_in_background
         self.data = data
+        self.logger = logger
         self._background_feed_update_tasks: set[asyncio.Task[Any]] = set()
 
     def register(self, app: FastAPI, /, path: str, **kwargs: Any) -> None:
@@ -32,7 +35,8 @@ class BaseRequestHandler(ABC):
         """
         router = APIRouter()
         router.add_api_route(
-            methods=["POST"], path=path, endpoint=self.handle, **kwargs)
+            methods=["POST"], path=path, endpoint=self.handle, **kwargs,
+        )
         app.include_router(router)
 
     @abstractmethod

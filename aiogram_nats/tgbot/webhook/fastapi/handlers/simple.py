@@ -2,6 +2,7 @@ import secrets
 from typing import Any, Optional
 
 from aiogram import Bot
+from structlog.stdlib import BoundLogger
 
 from aiogram_nats.tgbot.webhook.fastapi.handlers.base import BaseRequestHandler
 
@@ -20,12 +21,13 @@ class SimpleRequestHandler(BaseRequestHandler):
 
     def __init__(
         self,
+        logger: BoundLogger,
         handle_in_background: Optional[bool] = None,
         secret_token: Optional[str] = None,
         **data: Any,
     ) -> None:
 
-        super().__init__(handle_in_background=handle_in_background, **data)
+        super().__init__(logger=logger, handle_in_background=handle_in_background, **data)
         self.secret_token = secret_token
 
     def verify_secret(self, telegram_secret_token: str, bot: Bot) -> bool:
