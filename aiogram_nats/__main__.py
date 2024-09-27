@@ -7,7 +7,7 @@ import uvicorn
 from aiogram import Bot, Dispatcher
 from dishka import AsyncContainer
 from fastapi import FastAPI
-from structlog.stdlib import get_logger
+from structlog.stdlib import BoundLogger, get_logger
 
 from aiogram_nats.api.factory import create_app
 from aiogram_nats.common.log.configuration import LoggerName
@@ -21,22 +21,30 @@ from aiogram_nats.tgbot.webhook.fastapi.handlers import SimpleRequestHandler
 from aiogram_nats.tgbot.webhook.fastapi.setup import setup_application
 
 
-async def startup_api(container: AsyncContainer, settings: WebHookSettings) -> None:
+async def startup_api(container: AsyncContainer, settings: WebHookSettings, logger: BoundLogger) -> None:
     """Startup webhook"""
     url = settings.url + settings.path
     await taskiq_broker.startup()
+    await logger.ainfo("Start broker")
     bot: Bot = await container.get(Bot)
-    await bot.set_webhook(
+    await bot.delete_webhook()
+    result = await bot.set_webhook(
         url=url,
         secret_token=settings.secret_token.value,
     )
+    if result:
+        await logger.ainfo("Successfully Set webhook with url: %s", url)
+    else:
+        await logger.aerror("Failed Set webhook")
 
 
-async def shutdown_api(container: AsyncContainer) -> None:
+async def shutdown_api(container: AsyncContainer, logger: BoundLogger) -> None:
     """Shutdown webhook"""
     bot: Bot = await container.get(Bot)
     await taskiq_broker.shutdown()
+    await logger.ainfo("Shutdown broker")
     await bot.session.close()
+    await logger.ainfo("Close bot session")
 
 
 async def start_polling(settings: Settings) -> None:
@@ -83,8 +91,9 @@ def start_webhook(settings: Optional[Settings] = None) -> FastAPI:
         startup_api,
         container=container,
         settings=settings.bot.webhook,
+        logger=logger,
     )
-    shutdown = partial(shutdown_api, container=container)
+    shutdown = partial(shutdown_api, container=container, logger=logger)
     app.router.add_event_handler("startup", startup)
     app.router.add_event_handler("shutdown", shutdown)
 

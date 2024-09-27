@@ -38,6 +38,7 @@ class BaseRequestHandler(ABC):
             methods=["POST"], path=path, endpoint=self.handle, **kwargs,
         )
         app.include_router(router)
+        self.logger.debug("Registered webhook handler: %s", path)
 
     @abstractmethod
     def verify_secret(self, telegram_secret_token: str, bot: Bot) -> bool:
