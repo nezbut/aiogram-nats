@@ -10,6 +10,7 @@ from aiogram_dialog.api.protocols import BgManagerFactory, DialogManager
 from aiogram_dialog.context.storage import StorageProxy
 from dishka import AsyncContainer
 from fluentogram import TranslatorHub, TranslatorRunner
+from structlog.stdlib import BoundLogger
 
 from aiogram_nats.common.settings import Settings
 from aiogram_nats.common.settings.models import broker, db, logs, mailing_service, telegram
@@ -93,3 +94,4 @@ class MiddlewareData(AiogramMiddlewareData, DialogMiddlewareData, SettingsMiddle
 
     schedule_send: messages.ScheduleMessageSend
     schedule_deletion: messages.ScheduleMessageDeletion
+    logger: BoundLogger
