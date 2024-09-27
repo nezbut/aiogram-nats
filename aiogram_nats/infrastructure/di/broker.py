@@ -21,6 +21,7 @@ class NatsProvider(Provider):
         """Get Nats Client"""
         logger = logging.get_logger(LoggerName.BROKER)
         servers = [server.make_uri().value for server in settings.servers]
+        await logger.ainfo("Trying to connect to nats servers: %s", servers)
         async with await connect(servers) as nc:
             await logger.ainfo("Connected to nats servers: %s", servers)
             yield nc
