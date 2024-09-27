@@ -50,10 +50,10 @@ class LoggerName(Enum):
     """
 
     SCHEDULER = "scheduler"
-    AIOGRAM_BOT = "aiogram_bot"
-    MAILING = "mailing"
-    SCHEDULE_MESSAGE = "schedule_message"
-    USER = "user"
+    BOT = "bot"
+    MAILING_SERVICE = "mailing_service"
+    API = "api"
+    BROKER = "broker"
 
 
 @dataclass
@@ -90,8 +90,8 @@ class LoggerReg:
         if not isinstance(value, LoggerReg):
             return self.name.value == value
         return (
-                self.name == value.name
-                and self.level == value.level
-                and self.propagate == value.propagate
-                and self.write_file == value.write_file
+            self.name == value.name
+            and self.level == value.level
+            and self.propagate == value.propagate
+            and self.write_file == value.write_file
         )
