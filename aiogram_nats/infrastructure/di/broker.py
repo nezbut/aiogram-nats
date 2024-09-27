@@ -5,6 +5,8 @@ from nats import connect
 from nats.aio.client import Client
 from nats.js import JetStreamContext
 
+from aiogram_nats.common.log.configuration import LoggerName
+from aiogram_nats.common.log.installer import LoggersInstaller
 from aiogram_nats.common.settings.models.broker import NatsSettings
 
 
@@ -15,10 +17,12 @@ class NatsProvider(Provider):
     scope = Scope.APP
 
     @provide
-    async def get_client(self, settings: NatsSettings) -> AsyncIterable[Client]:
+    async def get_client(self, settings: NatsSettings, logging: LoggersInstaller) -> AsyncIterable[Client]:
         """Get Nats Client"""
+        logger = logging.get_logger(LoggerName.BROKER)
         servers = [server.make_uri().value for server in settings.servers]
         async with await connect(servers) as nc:
+            await logger.ainfo("Connected to nats servers: %s", servers)
             yield nc
 
     @provide
