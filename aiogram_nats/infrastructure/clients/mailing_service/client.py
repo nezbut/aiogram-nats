@@ -7,6 +7,8 @@ from nats.aio.msg import Msg
 from nats.errors import TimeoutError
 from nats.js import JetStreamContext
 
+from aiogram_nats.common.log.configuration import LoggerName
+from aiogram_nats.common.log.installer import LoggersInstaller
 from aiogram_nats.common.settings.models.mailing_service import MailingServiceSettings
 
 
@@ -19,6 +21,7 @@ class MailingServiceClient:
             nats_client: Client,
             mailing_service_settings: MailingServiceSettings,
             js: JetStreamContext,
+            logging: LoggersInstaller,
     ) -> None:
         self._settings = mailing_service_settings
         self._subject = f"{mailing_service_settings.main_subject}.{mailing_service_settings.service}"
@@ -26,18 +29,25 @@ class MailingServiceClient:
         self._nc = nats_client
         self._psub_coro = self._js.pull_subscribe(
             f"{self._subject}.messages",
-            durable="messages_manager",
+            durable=self._settings.durable_name,
             stream=self._settings.stream_name,
+        )
+        self._logger = logging.get_logger(
+            LoggerName.MAILING_SERVICE,
+            subject=f"{self._subject}.messages",
+            durable=self._settings.durable_name,
+            stream_name=self._settings.stream_name,
         )
         self._psub: JetStreamContext.PullSubscription
 
     async def startup(self) -> None:
         """Asynchronous method that represents the startup process of the client."""
         self._psub = await self._psub_coro
+        await self._logger.adebug("Startup Mailing Service Client")
 
     async def shutdown(self) -> None:
         """Asynchronously shuts down the MailingServiceClient instance."""
-        pass
+        await self._logger.adebug("Shutdown Mailing Service Client")
 
     async def __aenter__(self) -> "MailingServiceClient":
         """Asynchronous context manager entry point."""
@@ -84,7 +94,10 @@ class MailingServiceClient:
         """
         payload = self._get_payload(payload_array)
         response = await self._nc.request(self._subject, payload, timeout=timeout)
-        return response.data.decode(encoding="utf-8")
+        data = response.data.decode(encoding="utf-8")
+        log_msg = "Not created mailing: %s" if data == "Empty payload" else "Created mailing: %s"
+        await self._logger.adebug(log_msg, data)
+        return data
 
     async def delete_mailing(self, mailing_id: str) -> None:
         """
@@ -96,6 +109,7 @@ class MailingServiceClient:
         """
         payload = self._get_payload(mailing_id)
         await self._nc.publish(f"{self._subject}.delete", payload)
+        await self._logger.adebug("A request to delete mailing has been sent: %s", mailing_id)
 
     async def _get_mailing_messages(self, mailing_id: str, batch: int = 1, timeout: int = 5) -> list[Msg]:
         try:
