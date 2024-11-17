@@ -1,0 +1,134 @@
+version: "3.8"
+services:
+  app:
+    # image: nezbut/aiogram_nats:0.1.0-dev
+    build:
+      context: ..
+    container_name: app
+    profiles:
+      - local-bot-api
+    environment:
+      - AIOGRAM_NATS_BOT__BOT_API__TYPE=official
+      - AIOGRAM_NATS_BOT__BOT_API__API_URL=http://nginx
+      - AIOGRAM_NATS_BOT__BOT_API__FILE_URL=http://nginx
+      #- AIOGRAM_NATS_BOT__WEBHOOK__URL=http://app
+      #- AIOGRAM_NATS_BOT__WEBHOOK__SECRET_TOKEN__VALUE=dfajidjfoijfiffwsf
+      #- AIOGRAM_NATS_BOT__WEBHOOK__WEBHOOK_PATH=webhook
+      - AIOGRAM_NATS_BOT__FSM_STORAGE__NATS__CREATE_NATS_KV_BUCKETS=true
+      - AIOGRAM_NATS_BOT__TOKEN__VALUE=bottoken
+      - AIOGRAM_NATS_DB__RDB__HOST=db
+      - AIOGRAM_NATS_DB__REDIS__HOST=redis
+      - AIOGRAM_NATS_DB__RDB__USERNAME=superuser
+      - AIOGRAM_NATS_DB__RDB__PASSWORD__VALUE=password
+      - AIOGRAM_NATS_DB__RDB__PORT=5430
+      - AIOGRAM_NATS_BROKER__NATS__SERVERS=[{host='nats'}]
+      - AIOGRAM_NATS_LOGGING__DEV=true
+    ports:
+      - 80:8080
+    depends_on:
+      - db
+      - redis
+      - telegram-bot-api
+      - nginx
+      - nats
+
+  # ---------------------- DATABASES ----------------------
+  redis:
+    image: "bitnami/redis:latest"
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    volumes:
+      - redis:/bitnami/redis/data:rw
+    ports:
+      - 6379:6379
+
+  db:
+    image: postgres:latest
+    container_name: postgres_container
+    environment:
+      POSTGRES_USER: superuser
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: aiogram_nats
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5430:5432"
+    volumes:
+      - pgdata-volume:/var/lib/postgresql/data/pgdata
+    command: >
+      postgres -c max_connections=1000
+               -c shared_buffers=256MB
+               -c effective_cache_size=768MB
+               -c maintenance_work_mem=64MB
+               -c checkpoint_completion_target=0.7
+               -c wal_buffers=16MB
+               -c default_statistics_target=100
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U superuser -d aiogram_nats"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+    tty: true
+    stdin_open: true
+
+  # ---------------------- NATS ----------------------
+  nats:
+    image: nats
+    container_name: nats
+    ports:
+      - 4222:4222
+      - 8222:8222
+    volumes:
+      - ../config/nats.conf:/config/server.conf
+    command: -js -c /config/server.conf
+
+  mailing_service:
+    image: nezbut/mailing_service
+    environment:
+      - MS_NATS_AUTO_CREATION_OBJECTS=true
+      - MS_NATS_HOST=nats
+    depends_on:
+      - nats
+
+  nats-nui:
+    image: ghcr.io/nats-nui/nui:latest
+    container_name: nats-nui
+    ports:
+      - 31311:31311
+    volumes:
+      - nats-ui-data:/db
+    depends_on:
+      - nats
+
+  # ---------------------- TELEGRAM BOT API ----------------------
+  telegram-bot-api:
+    image: "aiogram/telegram-bot-api:latest"
+    profiles:
+      - local-bot-api
+    ports:
+      - 8081:8081
+    environment:
+      TELEGRAM_API_ID: "..."
+      TELEGRAM_API_HASH: "..."
+      TELEGRAM_LOCAL: 1
+    volumes:
+      - telegram-bot-api-data:/var/lib/telegram-bot-api
+
+  nginx:
+    image: "nginx:latest"
+    profiles:
+      - local-bot-api
+    volumes:
+      - ../config/nginx:/etc/nginx/conf.d/
+      - telegram-bot-api-data:/var/lib/telegram-bot-api
+      #- telegram-bot-api-data:/usr/share/nginx/html/var/lib/telegram-bot-api:ro
+    #ports:
+    #- 80:80
+    depends_on:
+      - telegram-bot-api
+
+volumes:
+  redis:
+  pgdata-volume:
+  telegram-bot-api-data:
+  nats-ui-data:
